@@ -13,7 +13,7 @@ parser: lexer
 	$(JAVAC) MiniJava.java
 
 lexer:
-	$(JFLEX) -d $(ODIR) $(SDIR)/lexico.flex
+	$(JFLEX) -d $(ODIR) $(SDIR)/lexer.flex
 
 clean:
 	rm -f $(ODIR)/*
