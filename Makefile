@@ -2,9 +2,9 @@ SDIR = ./src
 ODIR = ./out
 BINDIR = ./bin
 
-JFLEX  = java -jar $(IDIR)/JFlex.jar 
+JFLEX  = java -jar $(BINDIR)/JFlex.jar 
 JAVAC  = javac
-YACC   = $(IDIR)/yacc
+YACC   = $(BINDIR)/yacc
 
 
 all: lex
