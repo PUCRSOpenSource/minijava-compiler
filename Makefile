@@ -1,13 +1,15 @@
-JFLEX  = java -jar JFlex.jar 
-JAVAC  = javac
-YACC   = yacc
-
 SDIR = ./src
 ODIR = ./out
+BINDIR = ./bin
+
+JFLEX  = java -jar $(IDIR)/JFlex.jar 
+JAVAC  = javac
+YACC   = $(IDIR)/yacc
+
 
 all: lex
 
-syntactic: lexer
+parser: lexer
 	$(JAVAC) MiniJava.java
 
 lexer:
