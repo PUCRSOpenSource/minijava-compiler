@@ -4,15 +4,15 @@ BINDIR = ./bin
 
 JFLEX  = java -jar $(BINDIR)/JFlex.jar 
 JAVAC  = javac
-YACC   = $(BINDIR)/yacc
+BYACCJ   = $(BINDIR)/yacc.linux -tv -J 
 
 
 all: lex
 
-parser: lexer
-	$(JAVAC) MiniJava.java
+parser: lexer $(SDIR)/lexer.flex $(BINDIR)/Yylex.java
+	$(BYACCJ) $(BINDIR)/parser.y
 
-lexer:
+lexer: $(SDIR)/lexer.flex
 	$(JFLEX) -d $(ODIR) $(SDIR)/lexer.flex
 
 clean:

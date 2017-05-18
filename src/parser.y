@@ -2,28 +2,25 @@
   import java.io.*;
 %}
 
-%token PUBLIC
-%token STATIC
-%token VOID
-%token MAIN
-%token STRING
-%token EXTENDS
-%token RETURN
-%token INT
-%token BOOLEAN
-%token IF
-%token ELSE
-%token WHILE
-%token LENGTH
-%token PRINT
-%token TOP
-%token BOTTOM
-%token THIS
-%token NEW
 %token AND
-%token INTEGER
-%token IDENT
-%token NL
+%token BOOLEAN BOTTOM
+%token ELSE EXTENDS
+%token IDENT IF INT INTEGER
+%token LENGTH
+%token MAIN
+%token NEW NL
+%token PRINT PUBLIC
+%token RETURN
+%token STATIC STRING
+%token THIS TOP
+%token VOID
+%token WHILE
+
+
+%%
+
+Goal : MainClass ClassDeclaration
+MainClass : "class" IDENT "{" "public" "static" "void" "main" "(" "String" "[" "]" IDENT ")" "{" Statement "}" "}"
 
 
 %%
@@ -78,4 +75,3 @@ private Yylex lexer;
       System.out.println("Have a nice day");
     }
 }
-%%
