@@ -4,6 +4,7 @@
 
 %token AND
 %token BOOLEAN BOTTOM
+%token CLASS
 %token ELSE EXTENDS
 %token IDENT IF INT INTEGER
 %token LENGTH
@@ -18,11 +19,62 @@
 
 
 %%
-
 Goal : MainClass ClassDeclaration
-MainClass : "class" IDENT "{" "public" "static" "void" "main" "(" "String" "[" "]" IDENT ")" "{" Statement "}" "}"
+MainClass : CLASS IDENT '{' PUBLIC STATIC VOID MAIN '(' STRING '[' ']' IDENT ')' '{' Statement '}' '}'
+          ;
+ClassDeclaration : CLASS IDENT ClassExtends '{' VarDeclaration MethodDeclaration '}'
+                 |
+                 ;
+ClassExtends : EXTENDS IDENT
+             |
+             ;
+VarDeclaration : Type IDENT ';'
+               |
+               ;
+MethodDeclaration : "public" Type IDENT '(' MethodParams ')' '{' VarDeclaration StatementList  RETURN Expression ';' '}'
+                  |
+                  ;
+MethodParams : MethodParams ',' Type IDENT
+             | Type IDENT
+             |
+             ;
+Type : INT '[' ']'
+     | BOOLEAN
+     | INT
+     | IDENT
 
+StatementList : Statement StatementList
+              |
+              ;
+Statement : IF '(' Expression ')' Statement ELSE Statement
+          | WHILE '(' Expression ')' Statement
+          | PRINT '(' Expression ')' ';'
+          | IDENT '=' Expression ';'
+          | IDENT '[' Expression ']' '=' Expression ';'
+          |
+          ;
+Expression : Expression AND Expression
+           | Expression '<' Expression
+           | Expression '+' Expression
+           | Expression '-' Expression
+           | Expression '*' Expression
+           | Expression '[' Expression ']'
+           | Expression '.' LENGTH
+           | Expression '.' IDENT '(' MethodInvocation ')'
+           | INTEGER
+           | TOP
+           | BOTTOM
+           | IDENT
+           | THIS
+           | NEW INT '[' Expression ']'
+           | NEW IDENT '(' ')'
+           | '!' Expression
+           | '(' Expression ')'
 
+MethodInvocation : MethodInvocation ',' Expression
+                 | Expression
+                 |
+                 ;
 %%
 
 private Yylex lexer;
@@ -57,11 +109,9 @@ private Yylex lexer;
 
     Parser yyparser;
     if ( args.length > 0 ) {
-      // parse a file
       yyparser = new Parser(new FileReader(args[0]));
     }
     else {
-      // interactive mode
       System.out.println("[Quit with CTRL-D]");
       System.out.print("Expression: ");
       interactive = true;

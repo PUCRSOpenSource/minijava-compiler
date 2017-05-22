@@ -20,6 +20,7 @@ ID = [:jletter][:jletterdigit]*
 "public"             { return Parser.PUBLIC; }
 "static"             { return Parser.STATIC; }
 "void"               { return Parser.VOID; }
+"class"              { return Parser.CLASS; }
 "main"               { return Parser.MAIN; }
 "String"             { return Parser.STRING; }
 "extends"            { return Parser.EXTENDS; }
@@ -32,7 +33,7 @@ ID = [:jletter][:jletterdigit]*
 "length"             { return Parser.LENGTH; }
 "System".out.println { return Parser.PRINT; }
 "true"               { return Parser.TOP; }
-"flase"              { return Parser.BOTTOM; }
+"false"              { return Parser.BOTTOM; }
 "this"               { return Parser.THIS; }
 "new"                { return Parser.NEW; }
 "&&"                 { return Parser.AND; }
@@ -55,7 +56,7 @@ ID = [:jletter][:jletterdigit]*
 "<" |
 "-" |
 "*" |
-"+"     { return (int) yycharat(0); }
+"+" { return (int) yycharat(0); }
 
 
 [ \t]+ { }
