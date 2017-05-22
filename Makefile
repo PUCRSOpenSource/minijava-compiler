@@ -9,7 +9,7 @@ BYACCJ   = $(BINDIR)/yacc.linux -tv -J
 
 all: lex
 
-parser: $(SDIR)/lexer.flex $(ODIR)/Yylex.java
+parser: lexer
 	$(BYACCJ) $(SDIR)/parser.y
 
 lexer: $(SDIR)/lexer.flex
