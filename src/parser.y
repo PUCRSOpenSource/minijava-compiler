@@ -17,6 +17,12 @@
 %token VOID
 %token WHILE
 
+%right EQ
+%nonassoc LEQ LE GR GEQ NEQ
+%left '+' '-' OR
+%left '*' '/' AND
+%left '!'
+
 
 %%
 Goal : MainClass ClassDeclaration

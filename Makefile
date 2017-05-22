@@ -6,13 +6,18 @@ JFLEX  = java -jar $(BINDIR)/JFlex.jar
 JAVAC  = javac
 BYACCJ = $(BINDIR)/yacc.linux -tv -b minijava -J 
 
-all: parser
+all: Parser.class
 
-parser: lexer
-	$(BYACCJ) $(SDIR)/parser.y
-
-lexer: $(SDIR)/lexer.flex
-	$(JFLEX) $(SDIR)/lexer.flex
+build: clean Parser.class
 
 clean:
-	rm *.class *.java
+	rm -f *~ *.class minijava.output *.java
+
+Parser.class: Yylex.java Parser.java
+	$(JAVAC) Parser.java
+
+Yylex.java: $(SDIR)/lexer.flex
+	$(JFLEX) -d . $(SDIR)/lexer.flex
+
+Parser.java: $(SDIR)/parser.y
+	$(BYACCJ) $(SDIR)/parser.y
