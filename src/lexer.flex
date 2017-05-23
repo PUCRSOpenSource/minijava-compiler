@@ -24,7 +24,7 @@ ID = [:jletter][:jletterdigit]*
 "main"               { return Parser.MAIN; }
 "String"             { return Parser.STRING; }
 "extends"            { return Parser.EXTENDS; }
-"return"             { return parser.RETURN; }
+"return"             { return Parser.RETURN; }
 "int"                { return Parser.INT; }
 "boolean"            { return Parser.BOOLEAN; }
 "if"                 { return Parser.IF; }
@@ -38,7 +38,7 @@ ID = [:jletter][:jletterdigit]*
 "new"                { return Parser.NEW; }
 "&&"                 { return Parser.AND; }
 
-0 | [1-9][0-9]*      { return Parser.INTEGER }
+0 | [1-9][0-9]*      { return Parser.INTEGER; }
 {ID}                 { return Parser.IDENT; }
 {LT}+                { return Parser.NL; }
 
