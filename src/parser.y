@@ -19,15 +19,15 @@
 
 %right EQ
 %nonassoc '<'
-%left '+' '-' OR
+%left '+' '-'
 %left '*' '/' AND
 %right '!' 
 %left '.'
 %left '['
 
-
 %%
 Goal : MainClass ClassDeclaration
+     ;
 MainClass : CLASS IDENT '{' PUBLIC STATIC VOID MAIN '(' STRING '[' ']' IDENT ')' '{' Statement '}' '}'
           ;
 ClassDeclaration : CLASS IDENT ClassExtends '{' VarDeclaration MethodDeclaration '}'
@@ -50,7 +50,7 @@ Type : INT '[' ']'
      | BOOLEAN
      | INT
      | IDENT
-
+     ;
 StatementList : Statement StatementList
               |
               ;
@@ -78,7 +78,6 @@ Expression : Expression AND Expression
            | '!' Expression
            | '(' Expression ')'
 		   ;
-
 MethodInvocation : MethodInvocation ',' Expression
                  | Expression
                  |
