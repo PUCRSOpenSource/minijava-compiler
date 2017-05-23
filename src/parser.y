@@ -37,7 +37,7 @@ ClassExtends : EXTENDS IDENT
 VarDeclaration : Type IDENT ';'
                |
                ;
-MethodDeclaration : "public" Type IDENT '(' MethodParams ')' '{' VarDeclaration StatementList  RETURN Expression ';' '}'
+MethodDeclaration : PUBLIC Type IDENT '(' MethodParams ')' '{' VarDeclaration StatementList  RETURN Expression ';' '}'
                   |
                   ;
 MethodParams : MethodParams ',' Type IDENT
