@@ -18,10 +18,12 @@
 %token WHILE
 
 %right EQ
-%nonassoc LEQ LE GR GEQ NEQ
+%nonassoc '<'
 %left '+' '-' OR
 %left '*' '/' AND
-%left '!'
+%right '!' 
+%left '.'
+%left '['
 
 
 %%
@@ -57,7 +59,6 @@ Statement : IF '(' Expression ')' Statement ELSE Statement
           | PRINT '(' Expression ')' ';'
           | IDENT '=' Expression ';'
           | IDENT '[' Expression ']' '=' Expression ';'
-          |
           ;
 Expression : Expression AND Expression
            | Expression '<' Expression
@@ -76,6 +77,7 @@ Expression : Expression AND Expression
            | NEW IDENT '(' ')'
            | '!' Expression
            | '(' Expression ')'
+		   ;
 
 MethodInvocation : MethodInvocation ',' Expression
                  | Expression
