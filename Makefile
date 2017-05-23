@@ -1,15 +1,17 @@
 SDIR = ./src
 ODIR = ./out
 BINDIR = ./bin
+FILE_PREFIX = minijava
+YACC_FLAGS = -tv -b $(FILE_PREFIX) -J
 
 OS := $(shell uname)
 ifeq ($(OS), Darwin)
-BYACCJ = $(BINDIR)/yacc.macosx -tv -b minijava -J 
+BYACCJ = $(BINDIR)/yacc.macosx $(YACC_FLAGS)
 else
-BYACCJ = $(BINDIR)/yacc.linux -tv -b minijava -J 
+BYACCJ = $(BINDIR)/yacc.linux $(YACC_FLAGS)
 endif
 
-JFLEX  = java -jar $(BINDIR)/JFlex.jar 
+JFLEX  = java -jar $(BINDIR)/JFlex.jar
 JAVAC  = javac
 
 all: Parser.class

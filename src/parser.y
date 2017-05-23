@@ -39,21 +39,37 @@ ClassExtends : EXTENDS IDENT
 VarDeclaration : Type IDENT ';'
                |
                ;
-MethodDeclaration : PUBLIC Type IDENT '(' MethodParams ')' '{' VarDeclaration StatementList  RETURN Expression ';' '}'
+MethodDeclaration : PUBLIC Type IDENT '(' MethodParams ')' '{' Body RETURN Expression ';' '}'
                   |
                   ;
 MethodParams : MethodParams ',' Type IDENT
              | Type IDENT
              |
              ;
-Type : INT '[' ']'
-     | BOOLEAN
-     | INT
-     | IDENT
+Type : PrimitiveType
+     | ComplexType
      ;
-StatementList : Statement StatementList
-              |
+PrimitiveType : INT '[' ']'
+              | BOOLEAN
+              | INT
               ;
+ComplexType: IDENT
+           ;
+
+Body: Block Block
+    |
+    ;
+
+Block: LocalVariablesList
+     | StatementList
+     ;
+
+LocalVariablesList : Type IDENT ';' LocalVariablesList
+                   ;
+
+StatementList : Statement StatementList
+              ;
+
 Statement : IF '(' Expression ')' Statement ELSE Statement
           | WHILE '(' Expression ')' Statement
           | PRINT '(' Expression ')' ';'

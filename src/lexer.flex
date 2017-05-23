@@ -12,7 +12,6 @@
 %}
 
 LT = \r|\n|\r\n
-WS = {LineTerminator} | [ \t\f]
 ID = [:jletter][:jletterdigit]*
 
 %%
