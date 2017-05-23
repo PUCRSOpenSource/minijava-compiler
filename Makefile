@@ -2,9 +2,15 @@ SDIR = ./src
 ODIR = ./out
 BINDIR = ./bin
 
+OS := $(shell uname)
+ifeq ($(OS), Darwin)
+BYACCJ = $(BINDIR)/yacc.macosx -tv -b minijava -J 
+else
+BYACCJ = $(BINDIR)/yacc.linux -tv -b minijava -J 
+endif
+
 JFLEX  = java -jar $(BINDIR)/JFlex.jar 
 JAVAC  = javac
-BYACCJ = $(BINDIR)/yacc.linux -tv -b minijava -J 
 
 all: Parser.class
 
