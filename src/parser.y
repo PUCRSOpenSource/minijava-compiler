@@ -26,54 +26,50 @@
 %left '['
 
 %%
-Goal : MainClass ClassDeclaration
+Goal : MainClass  ClassDeclaration
      ;
-MainClass : CLASS IDENT '{' PUBLIC STATIC VOID MAIN '(' STRING '[' ']' IDENT ')' '{' Statement '}' '}'
+MainClass : CLASS IDENT '{' PUBLIC STATIC VOID MAIN '(' STRING '[' ']' IDENT ')' '{' Body '}' '}'
           ;
-ClassDeclaration : CLASS IDENT ClassExtends '{' ClassBody '}'
+ClassDeclaration : CLASS IDENT  '{' VarDeclaration MethodeDeclaration '}'
                  |
                  ;
-ClassExtends : EXTENDS IDENT
-             |
-             ;
-ClassBody : VarDeclaration MethodDeclaration
-          ;
-VarDeclaration : Type IDENT ';'
+VarDeclaration : VarDeclaration Var
                |
                ;
-MethodDeclaration : PUBLIC Type IDENT '(' MethodParams ')' '{' Body  '}'
-                  |
-                  ;
-MethodParams : MethodParams ',' Type IDENT
-             | Type IDENT
-             |
-             ;
-Type : PrimitiveType
-     | ComplexType
-     ;
-PrimitiveType : INT '[' ']'
-              | BOOLEAN
-              | INT
-              ;
-ComplexType: IDENT
-           ;
-
-Body: LocalVariablesList StatementList
-    | StatementList
-    | RETURN Expression ';'
+Var : INT IDENT ';'
+    | STATIC INT IDENT ';'
+    | INT '[' ']' IDENT ';'
     ;
-LocalVariablesList : Variable
-                   | LocalVariablesList Variable
+MethodeDeclaration : Method MethodeDeclaration
+                   |
                    ;
-Variable : Type IDENT ';'
-         ;
+Method : func_header '{' Body '}'
+       ;
+func_header: PUBLIC IDENT IDENT '('param_list ')'
+           | PUBLIC INT IDENT '('param_list ')'
+           | PUBLIC INT '[' ']' IDENT '(' param_list ')'
+           ;
+param_list : param
+           | param ',' param_list
+           |
+           ;
+param : INT IDENT
+      | INT IDENT '[' INTEGER ']'
+      ;
+Body : VarDeclaration StatementList
+     ;
 StatementList : StatementList Statement
+              |
               ;
-Statement : IF '(' Expression ')' Statement ELSE Statement
+Statement : IDENT '=' Expression ';'
+          | IDENT '[' Expression ']' '=' Expression ';'
+          | IF '(' Expression ')' Statement ELSE Statement
           | WHILE '(' Expression ')' Statement
           | PRINT '(' Expression ')' ';'
-          | IDENT '=' Expression ';'
-          | IDENT '[' Expression ']' '=' Expression ';'
+          | '{' StatementList '}'
+          | Expression ';'
+          | IDENT '=' Expression
+          | RETURN Expression ';'
           ;
 Expression : Expression AND Expression
            | Expression '<' Expression
@@ -82,21 +78,21 @@ Expression : Expression AND Expression
            | Expression '*' Expression
            | Expression '[' Expression ']'
            | Expression '.' LENGTH
-           | Expression '.' IDENT '(' MethodInvocation ')'
+           | Expression '.' IDENT '(' Args ')'
            | INTEGER
-           | TOP
-           | BOTTOM
            | IDENT
            | THIS
            | NEW INT '[' Expression ']'
            | NEW IDENT '(' ')'
            | '!' Expression
-           | '(' Expression ')'
+           | IDENT '(' Args ')'
            ;
-MethodInvocation : MethodInvocation ',' Expression
-                 | Expression
-                 |
-                 ;
+Args : ArgList
+     |
+     ;
+ArgList : Expression
+        | Expression ',' ArgList
+        ;
 %%
 
 private Yylex lexer;
