@@ -17,7 +17,7 @@
 %token VOID
 %token WHILE
 
-%right EQ
+%right '='
 %nonassoc '<'
 %left '+' '-'
 %left '*' '/' AND
@@ -30,16 +30,18 @@ Goal : MainClass ClassDeclaration
      ;
 MainClass : CLASS IDENT '{' PUBLIC STATIC VOID MAIN '(' STRING '[' ']' IDENT ')' '{' Statement '}' '}'
           ;
-ClassDeclaration : CLASS IDENT ClassExtends '{' VarDeclaration MethodDeclaration '}'
+ClassDeclaration : CLASS IDENT ClassExtends '{' ClassBody '}'
                  |
                  ;
 ClassExtends : EXTENDS IDENT
              |
              ;
+ClassBody : VarDeclaration MethodDeclaration
+          ;
 VarDeclaration : Type IDENT ';'
                |
                ;
-MethodDeclaration : PUBLIC Type IDENT '(' MethodParams ')' '{' Body RETURN Expression ';' '}'
+MethodDeclaration : PUBLIC Type IDENT '(' MethodParams ')' '{' Body  '}'
                   |
                   ;
 MethodParams : MethodParams ',' Type IDENT
@@ -56,20 +58,17 @@ PrimitiveType : INT '[' ']'
 ComplexType: IDENT
            ;
 
-Body: Block Block
-    |
+Body: LocalVariablesList StatementList
+    | StatementList
+    | RETURN Expression ';'
     ;
-
-Block: LocalVariablesList
-     | StatementList
-     ;
-
-LocalVariablesList : Type IDENT ';' LocalVariablesList
+LocalVariablesList : Variable
+                   | LocalVariablesList Variable
                    ;
-
-StatementList : Statement StatementList
+Variable : Type IDENT ';'
+         ;
+StatementList : StatementList Statement
               ;
-
 Statement : IF '(' Expression ')' Statement ELSE Statement
           | WHILE '(' Expression ')' Statement
           | PRINT '(' Expression ')' ';'
@@ -93,7 +92,7 @@ Expression : Expression AND Expression
            | NEW IDENT '(' ')'
            | '!' Expression
            | '(' Expression ')'
-		   ;
+           ;
 MethodInvocation : MethodInvocation ',' Expression
                  | Expression
                  |
@@ -102,7 +101,7 @@ MethodInvocation : MethodInvocation ',' Expression
 
 private Yylex lexer;
 
-  private int yylex () {
+private int yylex () {
     int yyl_return = -1;
     try {
       yylval = new ParserVal(0);
@@ -115,22 +114,25 @@ private Yylex lexer;
   }
 
 
-  public void yyerror (String error) {
+public void yyerror (String error) {
     System.err.println ("Error: " + error);
   }
 
 
-  public Parser(Reader r) {
+public Parser(Reader r) {
     lexer = new Yylex(r, this);
   }
 
+public void setDebug(boolean debug) {
+      yydebug = debug;
+  }
 
-  static boolean interactive;
+static boolean interactive;
 
-  public static void main(String args[]) throws IOException {
-    System.out.println("BYACC/Java with JFlex Calculator Demo");
+public static void main(String args[]) throws IOException {
+    System.out.println("BYACC/J with JFlex Minijava Compiler");
 
-    Parser yyparser;
+Parser yyparser;
     if ( args.length > 0 ) {
       yyparser = new Parser(new FileReader(args[0]));
     }
@@ -138,12 +140,12 @@ private Yylex lexer;
       System.out.println("[Quit with CTRL-D]");
       System.out.print("Expression: ");
       interactive = true;
-	    yyparser = new Parser(new InputStreamReader(System.in));
+        yyparser = new Parser(new InputStreamReader(System.in));
     }
 
-    yyparser.yyparse();
+yyparser.yyparse();
 
-    if (interactive) {
+if (interactive) {
       System.out.println();
       System.out.println("Have a nice day");
     }

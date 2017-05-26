@@ -1,6 +1,9 @@
 %%
 
 %byaccj
+%unicode
+%column
+%line
 
 %{
   private Parser yyparser;
@@ -8,13 +11,22 @@
   public Yylex(java.io.Reader r, Parser yyparser) {
     this(r);
     this.yyparser = yyparser;
+    yyline = 1;
+  }
+
+  public int getLine() {
+        return yyline;
   }
 %}
 
-LT = \r|\n|\r\n
-ID = [:jletter][:jletterdigit]*
+WHITE_SPACE = [\n\r\ \t\b\012]
+COMMENT = "//" [^\n\r]*
+ID = [a-zA-Z] [A-Za-z0-9_]*
 
 %%
+
+"$TRACE_ON"  { yyparser.setDebug(true); }
+"$TRACE_OFF" { yyparser.setDebug(false); }
 
 "public"             { return Parser.PUBLIC; }
 "static"             { return Parser.STATIC; }
@@ -30,7 +42,7 @@ ID = [:jletter][:jletterdigit]*
 "else"               { return Parser.ELSE; }
 "while"              { return Parser.WHILE; }
 "length"             { return Parser.LENGTH; }
-"System".out.println { return Parser.PRINT; }
+"System.out.println" { return Parser.PRINT; }
 "true"               { return Parser.TOP; }
 "false"              { return Parser.BOTTOM; }
 "this"               { return Parser.THIS; }
@@ -39,7 +51,7 @@ ID = [:jletter][:jletterdigit]*
 
 0 | [1-9][0-9]*      { return Parser.INTEGER; }
 {ID}                 { return Parser.IDENT; }
-{LT}+                { return Parser.NL; }
+{WHITE_SPACE}+                { }
 
 "(" |
 ")" |
@@ -58,5 +70,5 @@ ID = [:jletter][:jletterdigit]*
 "+" { return (int) yycharat(0); }
 
 
-[ \t]+ { }
+[ \t]+ | {COMMENT} { }
 [^]    { System.err.println("Error: unexpected character '" + yytext() + "' at line: " + yyline); return -1; }

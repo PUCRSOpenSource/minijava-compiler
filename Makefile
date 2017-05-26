@@ -24,6 +24,9 @@ clean:
 Parser.class: Yylex.java Parser.java
 	$(JAVAC) Parser.java
 
+Yylex.class: Yylex.java
+	$(JAVAC) Yylex.java
+
 Yylex.java: $(SDIR)/lexer.flex
 	$(JFLEX) -d . $(SDIR)/lexer.flex
 
