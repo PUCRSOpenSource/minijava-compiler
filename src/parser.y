@@ -74,12 +74,10 @@ Statement : IF '(' Expression ')' Statement ELSE Statement
           | PRINT '(' Expression ')' ';'
           | '{' StatementList '}'
           | Expression ';'
-          | IDENT AssignStatement ';'
+          | Id '=' Expression ';'
+          | Id '[' Expression ']' '=' Expression ';'
           | RETURN Expression ';'
           ;
-AssignStatement : '=' Expression
-                | '[' Expression ']' '=' Expression ';'
-                ;
 Expression : Expression AND Expression
            | Expression '<' Expression
            | Expression '+' Expression
