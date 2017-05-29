@@ -21,7 +21,7 @@
 
 WHITE_SPACE = [\n\r\ \t\b\012]
 COMMENT = "//" [^\n\r]*
-ID = [a-zA-Z] [A-Za-z0-9_]*
+ID = [A-Za-z][A-Za-z0-9_]*
 
 %%
 

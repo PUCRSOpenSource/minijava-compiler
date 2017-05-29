@@ -21,7 +21,7 @@
 %nonassoc '<'
 %left '+' '-'
 %left '*' '/' AND
-%right '!' 
+%left '!' 
 %left '.'
 %left '['
 
@@ -36,9 +36,9 @@ ClassDeclaration : CLASS IDENT  '{' VarDeclaration MethodeDeclaration '}'
 VarDeclaration : VarDeclaration Var
                |
                ;
-Var : INT IDENT ';'
+Var : INT '[' ']' IDENT ';'
     | STATIC INT IDENT ';'
-    | INT '[' ']' IDENT ';'
+    | INT IDENT ';'
     ;
 MethodeDeclaration : Method MethodeDeclaration
                    |
@@ -61,32 +61,68 @@ Body : VarDeclaration StatementList
 StatementList : StatementList Statement
               |
               ;
-Statement : IDENT '=' Expression ';'
-          | IDENT '[' Expression ']' '=' Expression ';'
-          | IF '(' Expression ')' Statement ELSE Statement
+Statement : IF '(' Expression ')' Statement ELSE Statement
           | WHILE '(' Expression ')' Statement
           | PRINT '(' Expression ')' ';'
           | '{' StatementList '}'
           | Expression ';'
-          | IDENT '=' Expression
           | RETURN Expression ';'
           ;
-Expression : Expression AND Expression
-           | Expression '<' Expression
-           | Expression '+' Expression
-           | Expression '-' Expression
-           | Expression '*' Expression
-           | Expression '[' Expression ']'
-           | Expression '.' LENGTH
-           | Expression '.' IDENT '(' Args ')'
-           | INTEGER
-           | IDENT
-           | THIS
-           | NEW INT '[' Expression ']'
-           | NEW IDENT '(' ')'
-           | '!' Expression
-           | IDENT '(' Args ')'
+/*Expression : Expression AND Expression*/
+           /*| Expression '<' Expression*/
+           /*| Expression '+' Expression*/
+           /*| Expression '-' Expression*/
+           /*| Expression '*' Expression*/
+           /*| Expression '[' Expression ']'*/
+           /*| Expression '.' DotExpression*/
+           /*| INTEGER*/
+           /*| IDENT IdentOrAssign*/
+           /*| THIS*/
+           /*| NEW ArrayOrClassInitializer*/
+           /*| '(' Expression ')'*/
+           /*| '!' Expression*/
+           /*;*/
+/*IdentOrAssign : '=' Expression*/
+              /*| '[' Expression ']' '=' Expression*/
+              /*| '(' Args ')'*/
+              /*;*/
+Expression : LogicOrExpression
+           | LogicOrExpression '=' LogicOrExpression
            ;
+LogicOrExpression : RelationalExpression
+                  | LogicOrExpression AND LogicOrExpression
+                  ;
+RelationalExpression : Term
+                     | RelationalExpression '<' Term
+                     ;
+Term : Factor
+     | Term '+' Term
+     | Term '-' Term
+     ;
+Factor : Unary
+       | Factor '*' Factor
+       | Factor '/' Factor
+       ;
+Unary : DotExpression
+      | '!' Unary
+      ;
+DotExpression : DotExpression '.' LENGTH
+              | DotExpression '.' IDENT
+              | DotExpression '.' IDENT '(' Args ')'
+              | DotExpression '[' Expression ']'
+              | ObjectExpression
+              ;
+ObjectExpression : THIS
+                 | TOP
+                 | BOTTOM
+                 | NEW ArrayOrClassInitializer
+                 | INTEGER
+                 | IDENT
+                 | '(' Expression ')'
+                 ;
+ArrayOrClassInitializer: INT '[' Expression ']'
+                       | IDENT '(' ')'
+                       ;
 Args : ArgList
      |
      ;
