@@ -4,7 +4,6 @@ class Basic2 {
         System.out.println(999);
     }
 }
-
 class X{
     int[] number ;
     int size ;

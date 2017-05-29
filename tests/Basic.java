@@ -4,4 +4,12 @@ class Basic {
 		System.out.println(999);
 	}
 }
+class X{
+    int[] number ;
+    int size ;
+    public int Start(int s){
+        int x;
+        return 0;
+    }
+}
 $TRACE_OFF

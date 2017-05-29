@@ -12,117 +12,91 @@
 %token NEW NL
 %token PRINT PUBLIC
 %token RETURN
-%token STATIC STRING
+%token STATIC STRING STRING_LITERAL
 %token THIS TOP
 %token VOID
 %token WHILE
 
 %right '='
+%left AND
 %nonassoc '<'
 %left '+' '-'
-%left '*' '/' AND
-%left '!' 
+%left '*' '/'
+%right '!' 
 %left '.'
 %left '['
 
 %%
 Goal : MainClass  ClassDeclaration
      ;
-MainClass : CLASS IDENT '{' PUBLIC STATIC VOID MAIN '(' STRING '[' ']' IDENT ')' '{' Body '}' '}'
+MainClass : CLASS IDENT '{' PUBLIC STATIC VOID MAIN '(' STRING '[' ']' IDENT ')' '{' VarDeclarationStatementList '}' '}'
           ;
-ClassDeclaration : CLASS IDENT  '{' VarDeclaration MethodeDeclaration '}'
+ClassDeclaration : CLASS IDENT  '{' VarDeclarationMethodeDeclaration '}'
                  |
                  ;
-VarDeclaration : VarDeclaration Var
-               |
-               ;
-Var : INT '[' ']' IDENT ';'
-    | STATIC INT IDENT ';'
-    | INT IDENT ';'
+VarDeclarationMethodeDeclaration : Var VarDeclarationMethodeDeclaration
+                                 | IDENT IDENT ';' VarDeclarationMethodeDeclaration
+                                 | MethodeDeclaration
+                                 ;
+Var : PrimitiveType IDENT ';'
     ;
+PrimitiveType : INT
+              | BOOLEAN
+              | INT '[' ']'
+              ;
+Type : IDENT
+     | PrimitiveType
+     ;
 MethodeDeclaration : Method MethodeDeclaration
                    |
                    ;
-Method : func_header '{' Body '}'
+Method : MethodSig '{' VarDeclarationStatementList '}'
        ;
-func_header: PUBLIC IDENT IDENT '('param_list ')'
-           | PUBLIC INT IDENT '('param_list ')'
-           | PUBLIC INT '[' ']' IDENT '(' param_list ')'
-           ;
-param_list : param
-           | param ',' param_list
-           |
-           ;
-param : INT IDENT
-      | INT IDENT '[' INTEGER ']'
+MethodSig : PUBLIC Type IDENT '('Params ')'
+          ;
+Params : Param
+       | Param ',' Params
+       |
+       ;
+Param : PrimitiveType IDENT
+      | IDENT IDENT
       ;
-Body : VarDeclaration StatementList
-     ;
+VarDeclarationStatementList : PrimitiveType IDENT ';' VarDeclarationStatementList
+                            | IDENT IDENT ';' VarDeclarationStatementList
+                            | StatementList
+                            |
+                            ;
 StatementList : StatementList Statement
-              |
+              | Statement
               ;
 Statement : IF '(' Expression ')' Statement ELSE Statement
           | WHILE '(' Expression ')' Statement
           | PRINT '(' Expression ')' ';'
           | '{' StatementList '}'
           | Expression ';'
+          | IDENT AssignStatement ';'
           | RETURN Expression ';'
           ;
-/*Expression : Expression AND Expression*/
-           /*| Expression '<' Expression*/
-           /*| Expression '+' Expression*/
-           /*| Expression '-' Expression*/
-           /*| Expression '*' Expression*/
-           /*| Expression '[' Expression ']'*/
-           /*| Expression '.' DotExpression*/
-           /*| INTEGER*/
-           /*| IDENT IdentOrAssign*/
-           /*| THIS*/
-           /*| NEW ArrayOrClassInitializer*/
-           /*| '(' Expression ')'*/
-           /*| '!' Expression*/
-           /*;*/
-/*IdentOrAssign : '=' Expression*/
-              /*| '[' Expression ']' '=' Expression*/
-              /*| '(' Args ')'*/
-              /*;*/
-Expression : LogicOrExpression
-           | LogicOrExpression '=' LogicOrExpression
+AssignStatement : '=' Expression
+                | '[' Expression ']' '=' Expression ';'
+                ;
+Expression : Expression AND Expression
+           | Expression '<' Expression
+           | Expression '+' Expression
+           | Expression '-' Expression
+           | Expression '*' Expression
+           | Expression '[' Expression ']'
+           | Expression '.' LENGTH
+           | Expression '.' Id '(' Args ')'
+           | '(' Expression ')'
+           | INTEGER
+           | Id
+           | THIS
+           | NEW INT '[' Expression ']'
+           | NEW Id '(' ')'
+           | '!' Expression
            ;
-LogicOrExpression : RelationalExpression
-                  | LogicOrExpression AND LogicOrExpression
-                  ;
-RelationalExpression : Term
-                     | RelationalExpression '<' Term
-                     ;
-Term : Factor
-     | Term '+' Term
-     | Term '-' Term
-     ;
-Factor : Unary
-       | Factor '*' Factor
-       | Factor '/' Factor
-       ;
-Unary : DotExpression
-      | '!' Unary
-      ;
-DotExpression : DotExpression '.' LENGTH
-              | DotExpression '.' IDENT
-              | DotExpression '.' IDENT '(' Args ')'
-              | DotExpression '[' Expression ']'
-              | ObjectExpression
-              ;
-ObjectExpression : THIS
-                 | TOP
-                 | BOTTOM
-                 | NEW ArrayOrClassInitializer
-                 | INTEGER
-                 | IDENT
-                 | '(' Expression ')'
-                 ;
-ArrayOrClassInitializer: INT '[' Expression ']'
-                       | IDENT '(' ')'
-                       ;
+Id : IDENT
 Args : ArgList
      |
      ;
