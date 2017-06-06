@@ -18,27 +18,30 @@
 %token WHILE
 
 %right '='
-%left AND
 %nonassoc '<'
+%left AND
 %left '+' '-'
-%left '*' '/'
+%left '*'
 %right '!' 
 %left '.'
 %left '['
 
 %%
-Goal : MainClass  ClassDeclaration
+Goal : MainClass ClassDeclaration
      ;
 MainClass : CLASS IDENT '{' PUBLIC STATIC VOID MAIN '(' STRING '[' ']' IDENT ')' '{' VarDeclarationStatementList '}' '}'
           ;
-ClassDeclaration : CLASS IDENT  '{' VarDeclarationMethodeDeclaration '}'
+ClassDeclaration : CLASS IDENT  Extends '{' VarDeclarationMethodeDeclaration '}' ClassDeclaration
                  |
                  ;
+Extends : EXTENDS IDENT
+        |
+        ;
 VarDeclarationMethodeDeclaration : Var VarDeclarationMethodeDeclaration
-                                 | IDENT IDENT ';' VarDeclarationMethodeDeclaration
                                  | MethodeDeclaration
                                  ;
 Var : PrimitiveType IDENT ';'
+    | IDENT IDENT ';'
     ;
 PrimitiveType : INT
               | BOOLEAN
@@ -50,33 +53,29 @@ Type : IDENT
 MethodeDeclaration : Method MethodeDeclaration
                    |
                    ;
-Method : MethodSig '{' VarDeclarationStatementList '}'
+Method : MethodSig '{' VarDeclarationStatementList RETURN Expression ';' '}'
        ;
-MethodSig : PUBLIC Type IDENT '('Params ')'
+MethodSig : PUBLIC Type IDENT '(' Params ')'
           ;
-Params : Param
-       | Param ',' Params
+Params : Type IDENT Param
        |
        ;
-Param : PrimitiveType IDENT
-      | IDENT IDENT
+Param : ',' Type IDENT Param
+      |
       ;
-VarDeclarationStatementList : PrimitiveType IDENT ';' VarDeclarationStatementList
-                            | IDENT IDENT ';' VarDeclarationStatementList
-                            | StatementList
+VarDeclarationStatementList : Var VarDeclarationStatementList
+                            | Statement StatementList 
                             |
                             ;
-StatementList : StatementList Statement
-              | Statement
+StatementList : StatementList Statement 
+              |
               ;
-Statement : IF '(' Expression ')' Statement ELSE Statement
+Statement : '{' StatementList '}'
+          | IF '(' Expression ')' Statement ELSE Statement
           | WHILE '(' Expression ')' Statement
           | PRINT '(' Expression ')' ';'
-          | '{' StatementList '}'
-          | Expression ';'
-          | Id '=' Expression ';'
-          | Id '[' Expression ']' '=' Expression ';'
-          | RETURN Expression ';'
+          | IDENT '=' Expression ';'
+          | IDENT '[' Expression ']' '=' Expression ';'
           ;
 Expression : Expression AND Expression
            | Expression '<' Expression
@@ -85,21 +84,22 @@ Expression : Expression AND Expression
            | Expression '*' Expression
            | Expression '[' Expression ']'
            | Expression '.' LENGTH
-           | Expression '.' Id '(' Args ')'
+           | Expression '.' IDENT '(' Args ')'
            | '(' Expression ')'
            | INTEGER
-           | Id
+           | IDENT
            | THIS
+           | TOP
+           | BOTTOM
            | NEW INT '[' Expression ']'
-           | NEW Id '(' ')'
+           | NEW IDENT '(' ')'
            | '!' Expression
            ;
-Id : IDENT
-Args : ArgList
+Args : Expression ArgList
      |
      ;
-ArgList : Expression
-        | Expression ',' ArgList
+ArgList : ','Expression ArgList
+        |
         ;
 %%
 

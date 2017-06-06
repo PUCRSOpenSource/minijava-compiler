@@ -1,4 +1,3 @@
-$TRACE_ON
 class Basic2 {
     public static void main(String[] args) {
         System.out.println(999);
@@ -12,4 +11,3 @@ class X{
         return 0;
     }
 }
-$TRACE_OFF

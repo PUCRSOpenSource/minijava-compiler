@@ -32,3 +32,20 @@ Yylex.java: $(SDIR)/lexer.flex
 
 Parser.java: $(SDIR)/parser.y
 	$(BYACCJ) $(SDIR)/parser.y
+
+test_syn: 
+	java Parser ./tests/Basic.java
+	java Parser ./tests/Basic2.java
+	java Parser ./tests/Basic3.java
+	java Parser ./tests/Basic4.java
+	java Parser ./tests/Basic5.java
+	java Parser ./tests/Basic3.java
+	java Parser ./tests/Basic7.java
+	java Parser ./tests/BinarySearch.java
+	java Parser ./tests/BinaryTree.java
+	java Parser ./tests/BubbleSort.java
+	java Parser ./tests/Factorial.java
+	java Parser ./tests/LinearSearch.java
+	java Parser ./tests/LinkedList.java
+	java Parser ./tests/QuickSort.java
+	java Parser ./tests/TreeVisitor.java

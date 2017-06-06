@@ -1,4 +1,3 @@
-$TRACE_ON
 class BinaryTree{
     public static void main(String[] a){
         System.out.println(new BT().Start());
@@ -16,7 +15,6 @@ class BT {
         int nti ;
 
         root = new Tree();
-$TRACE_OFF
         ntb = root.Init(16);
         ntb = root.Print();
         System.out.println(100000000);
