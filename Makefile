@@ -19,9 +19,9 @@ all: Parser.class
 build: clean Parser.class
 
 clean:
-	rm -f *~ *.class minijava.output *.java
+	rm -f *~ *.class minijava.output Parser.java ParserVal.java Yylex.java
 
-Parser.class: Yylex.java Parser.java
+Parser.class: TS_entry.java TabSimb.java Yylex.java Parser.java
 	$(JAVAC) Parser.java
 
 Yylex.class: Yylex.java

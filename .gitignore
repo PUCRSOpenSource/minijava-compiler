@@ -1,5 +1,7 @@
 *.class
-/*.java
+/Parser.java
+/ParserVal.java
+/Yylex.java
 *.output
 
 # Mobile Tools for Java (J2ME)

@@ -49,9 +49,18 @@ ID = [A-Za-z][A-Za-z0-9_]*
 "new"                { return Parser.NEW; }
 "&&"                 { return Parser.AND; }
 
-\".*\"               { return Parser.STRING_LITERAL; }
-0 | [1-9][0-9]*      { return Parser.INTEGER; }
-{ID}                 { return Parser.IDENT; }
+\".*\"               {
+                        yyparser.yyval = new ParserVal(yytext());
+                        return Parser.STRING_LITERAL;
+                     }
+0 | [1-9][0-9]*      {
+                        yyparser.yyval = new ParserVal(Integer.parseInt(yytext()));
+                        return Parser.INTEGER;
+                     }
+{ID}                 {  
+                        yyparser.yyval = new ParserVal(yytext());
+                        return Parser.IDENT;
+                     }
 {WHITE_SPACE}+                { }
 
 "(" |

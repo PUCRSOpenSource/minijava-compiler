@@ -26,6 +26,11 @@
 %left '.'
 %left '['
 
+%type <sval> IDENT
+%type <ival> INTEGER
+%type <obj> Type
+%type <obj> PrimitiveType
+
 %%
 Goal : MainClass ClassDeclaration
      ;
@@ -40,14 +45,28 @@ Extends : EXTENDS IDENT
 VarDeclarationMethodeDeclaration : Var VarDeclarationMethodeDeclaration
                                  | MethodeDeclaration
                                  ;
-Var : PrimitiveType IDENT ';'
-    | IDENT IDENT ';'
+Var : Type IDENT ';'    {
+                            /*TS_entry nodo = ts.pesquisa($2);*/
+                            System.out.println("$2 ->" + $2);
+                            /*if(nodo == null)*/
+                                /*ts.insert(new TS_entry($2, (TS_entry)$1, null, null));*/
+                            /*else*/
+                                /*yyerror("(sem) -> Variavel <" + $2 + "> ja declarada");*/
+                        }
     ;
-PrimitiveType : INT
-              | BOOLEAN
-              | INT '[' ']'
+PrimitiveType : INT {
+                        $$ = Tp_INT;
+                    }
+              | BOOLEAN {
+                            $$ = Tp_BOOL;
+                        }
+              | INT '[' ']' {
+                                $$ = Tp_ARRAY;
+                            }
               ;
-Type : IDENT
+Type : IDENT    {
+                    $$ = $1;
+                }
      | PrimitiveType
      ;
 MethodeDeclaration : Method MethodeDeclaration
@@ -105,6 +124,13 @@ ArgList : ','Expression ArgList
 
 private Yylex lexer;
 
+private TabSimb ts;
+
+public static TS_entry Tp_INT = new TS_entry("int", null, "", ClasseID.TipoBase);
+public static TS_entry Tp_BOOL= new TS_entry("boolean", null, "", ClasseID.TipoBase);
+public static TS_entry Tp_ARRAY = new TS_entry("array", null, "", ClasseID.TipoBase);
+public static TS_entry Tp_ERRO = new TS_entry("_erro_", null, "", ClasseID.TipoBase);
+
 private int yylex () {
     int yyl_return = -1;
     try {
@@ -112,31 +138,42 @@ private int yylex () {
       yyl_return = lexer.yylex();
     }
     catch (IOException e) {
-      System.err.println("IO error :"+e);
+      System.err.println("IO error :" + e);
     }
     return yyl_return;
-  }
+}
 
 
 public void yyerror (String error) {
-    System.err.println ("Error: " + error);
-  }
+    System.err.println ("Error: (linha: " + lexer.getLine() + ")\tMensagem: " + error);
+}
 
 
 public Parser(Reader r) {
     lexer = new Yylex(r, this);
-  }
+    ts = new TabSimb();
+    
+    ts.insert(Tp_ERRO);
+    ts.insert(Tp_INT);
+    ts.insert(Tp_BOOL);
+    ts.insert(Tp_ARRAY);
+
+}
 
 public void setDebug(boolean debug) {
-      yydebug = debug;
-  }
+    yydebug = debug;
+}
+
+public void listarTS() {
+    ts.listar();
+}
 
 static boolean interactive;
 
 public static void main(String args[]) throws IOException {
     System.out.println("BYACC/J with JFlex Minijava Compiler");
 
-Parser yyparser;
+    Parser yyparser;
     if ( args.length > 0 ) {
       yyparser = new Parser(new FileReader(args[0]));
     }
@@ -147,10 +184,11 @@ Parser yyparser;
         yyparser = new Parser(new InputStreamReader(System.in));
     }
 
-yyparser.yyparse();
+    yyparser.yyparse();
+    yyparser.listarTS();
 
-if (interactive) {
+    if (interactive)
       System.out.println();
-      System.out.println("Have a nice day");
-    }
+
+    System.out.println("Have a nice day");
 }
