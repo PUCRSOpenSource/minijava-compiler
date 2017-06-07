@@ -6,8 +6,10 @@ class Basic {
 class X{
     int[] number ;
     int size ;
+    X x;
     public int Start(int s){
-        int x;
+        int y;
+        y = y + size;
         return 0;
     }
 }

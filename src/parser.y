@@ -30,13 +30,23 @@
 %type <ival> INTEGER
 %type <obj> Type
 %type <obj> PrimitiveType
+%type <obj> Expression
 
 %%
 Goal : MainClass ClassDeclaration
      ;
 MainClass : CLASS IDENT '{' PUBLIC STATIC VOID MAIN '(' STRING '[' ']' IDENT ')' '{' VarDeclarationStatementList '}' '}'
           ;
-ClassDeclaration : CLASS IDENT  Extends '{' VarDeclarationMethodeDeclaration '}' ClassDeclaration
+ClassDeclaration : CLASS IDENT Extends '{' VarDeclarationMethodeDeclaration '}' ClassDeclaration
+                 {
+                    TS_entry nodo = ts.pesquisa($2);
+                    if(nodo == null) {
+                        ts.insert(new TS_entry($2, Tp_OBJECT, null, ClasseID.TipoComplexo, true));
+                        ts.resolveType($2);
+                    }
+                    else
+                        yyerror("(sem) -> Classe <" + $2 + "> ja declarada");
+                 }
                  |
                  ;
 Extends : EXTENDS IDENT
@@ -45,28 +55,36 @@ Extends : EXTENDS IDENT
 VarDeclarationMethodeDeclaration : Var VarDeclarationMethodeDeclaration
                                  | MethodeDeclaration
                                  ;
-Var : Type IDENT ';'    {
-                            /*TS_entry nodo = ts.pesquisa($2);*/
-                            System.out.println("$2 ->" + $2);
-                            /*if(nodo == null)*/
-                                /*ts.insert(new TS_entry($2, (TS_entry)$1, null, null));*/
-                            /*else*/
-                                /*yyerror("(sem) -> Variavel <" + $2 + "> ja declarada");*/
-                        }
+Var : Type IDENT ';'
+    {
+        TS_entry nodo = ts.pesquisa($2);
+        boolean resolved = ts.isResolved(((TS_entry) $1).getId());
+        if(nodo == null)
+            ts.insert(new TS_entry($2, (TS_entry)$1, null, null, resolved));
+        else
+            yyerror("(sem) -> Variavel <" + $2 + "> ja declarada");
+    }
     ;
-PrimitiveType : INT {
-                        $$ = Tp_INT;
-                    }
-              | BOOLEAN {
-                            $$ = Tp_BOOL;
-                        }
-              | INT '[' ']' {
-                                $$ = Tp_ARRAY;
-                            }
+PrimitiveType : INT
+              {
+                 $$ = Tp_INT;
+              }
+              | BOOLEAN
+              {
+                 $$ = Tp_BOOL;
+              }
+              | INT '[' ']'
+              {
+                 $$ = Tp_ARRAY;
+              }
               ;
-Type : IDENT    {
-                    $$ = $1;
-                }
+Type : IDENT
+     {
+        TS_entry type = ts.pesquisa($1);
+        if(type == null)
+            type = new TS_entry($1, null, "", ClasseID.TipoComplexo, false);
+        $$ = type;
+     }
      | PrimitiveType
      ;
 MethodeDeclaration : Method MethodeDeclaration
@@ -99,14 +117,30 @@ Statement : '{' StatementList '}'
 Expression : Expression AND Expression
            | Expression '<' Expression
            | Expression '+' Expression
+           {
+                $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3);
+           }
            | Expression '-' Expression
+           {
+                $$ = validaTipo('-', (TS_entry)$1, (TS_entry)$3);
+           }
            | Expression '*' Expression
+           {
+                $$ = validaTipo('*', (TS_entry)$1, (TS_entry)$3);
+           }
            | Expression '[' Expression ']'
            | Expression '.' LENGTH
            | Expression '.' IDENT '(' Args ')'
            | '(' Expression ')'
            | INTEGER
-           | IDENT
+           | IDENT 
+           {
+                TS_entry nodo = ts.pesquisa($1);
+                if(nodo == null)
+                    yyerror("(sem) var <" + $1 + "> nao declarada");
+                else
+                    $$ = nodo.getTipo();
+           }
            | THIS
            | TOP
            | BOTTOM
@@ -129,6 +163,7 @@ private TabSimb ts;
 public static TS_entry Tp_INT = new TS_entry("int", null, "", ClasseID.TipoBase);
 public static TS_entry Tp_BOOL= new TS_entry("boolean", null, "", ClasseID.TipoBase);
 public static TS_entry Tp_ARRAY = new TS_entry("array", null, "", ClasseID.TipoBase);
+public static TS_entry Tp_OBJECT = new TS_entry("object", null, "", ClasseID.TipoComplexo);
 public static TS_entry Tp_ERRO = new TS_entry("_erro_", null, "", ClasseID.TipoBase);
 
 private int yylex () {
@@ -152,7 +187,7 @@ public void yyerror (String error) {
 public Parser(Reader r) {
     lexer = new Yylex(r, this);
     ts = new TabSimb();
-    
+
     ts.insert(Tp_ERRO);
     ts.insert(Tp_INT);
     ts.insert(Tp_BOOL);
@@ -191,4 +226,26 @@ public static void main(String args[]) throws IOException {
       System.out.println();
 
     System.out.println("Have a nice day");
+}
+
+TS_entry validaTipo(char operador, TS_entry A, TS_entry B) {
+
+    if (operador == '+' || operador == '-' || operador == '*') {
+      if ( A == Tp_INT && B == Tp_INT) {
+        return Tp_INT;
+      }
+      else {
+        yyerror("(sem) tipos incomp. para operador aritimetico: " + A + " " + String.valueOf(operador) + " " + B);
+      }
+    }
+
+    if (operador == AND) {
+      if (A == Tp_BOOL && B == Tp_BOOL) {
+        return Tp_BOOL;
+      } else {
+        yyerror("(sem) tipos incomp. para operador lógico: "+ A + " && "+B);
+      }
+    }
+
+    return Tp_ERRO;
 }

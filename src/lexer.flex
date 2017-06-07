@@ -1,9 +1,6 @@
 %%
 
 %byaccj
-%unicode
-%column
-%line
 
 %{
   private Parser yyparser;
@@ -50,15 +47,15 @@ ID = [A-Za-z][A-Za-z0-9_]*
 "&&"                 { return Parser.AND; }
 
 \".*\"               {
-                        yyparser.yyval = new ParserVal(yytext());
+                        yyparser.yylval = new ParserVal(yytext());
                         return Parser.STRING_LITERAL;
                      }
 0 | [1-9][0-9]*      {
-                        yyparser.yyval = new ParserVal(Integer.parseInt(yytext()));
+                        yyparser.yylval = new ParserVal(Integer.parseInt(yytext()));
                         return Parser.INTEGER;
                      }
-{ID}                 {  
-                        yyparser.yyval = new ParserVal(yytext());
+{ID}                 {
+                        yyparser.yylval = new ParserVal(yytext());
                         return Parser.IDENT;
                      }
 {WHITE_SPACE}+                { }
