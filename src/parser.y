@@ -37,16 +37,18 @@ Goal : MainClass ClassDeclaration
      ;
 MainClass : CLASS IDENT '{' PUBLIC STATIC VOID MAIN '(' STRING '[' ']' IDENT ')' '{' VarDeclarationStatementList '}' '}'
           ;
-ClassDeclaration : CLASS IDENT Extends '{' VarDeclarationMethodeDeclaration '}' ClassDeclaration
+ClassDeclaration : CLASS IDENT
                  {
                     TS_entry nodo = ts.pesquisa($2);
                     if(nodo == null) {
                         ts.insert(new TS_entry($2, Tp_OBJECT, null, ClasseID.TipoComplexo, true));
                         ts.resolveType($2);
+                        currEscopo = $2;
                     }
                     else
                         yyerror("(sem) -> Classe <" + $2 + "> ja declarada");
                  }
+                 Extends '{' VarDeclarationMethodeDeclaration '}' ClassDeclaration
                  |
                  ;
 Extends : EXTENDS IDENT
@@ -60,7 +62,7 @@ Var : Type IDENT ';'
         TS_entry nodo = ts.pesquisa($2);
         boolean resolved = ts.isResolved(((TS_entry) $1).getId());
         if(nodo == null)
-            ts.insert(new TS_entry($2, (TS_entry)$1, null, null, resolved));
+            ts.insert(new TS_entry($2, (TS_entry)$1, currEscopo, currClass, resolved));
         else
             yyerror("(sem) -> Variavel <" + $2 + "> ja declarada");
     }
@@ -175,8 +177,9 @@ ArgList : ','Expression ArgList
 %%
 
 private Yylex lexer;
-
 private TabSimb ts;
+private String currEscopo;
+private ClasseID currClass;
 
 public static TS_entry Tp_INT = new TS_entry("int", null, "", ClasseID.TipoBase);
 public static TS_entry Tp_BOOL= new TS_entry("boolean", null, "", ClasseID.TipoBase);
@@ -246,7 +249,7 @@ public static void main(String args[]) throws IOException {
     System.out.println("Have a nice day");
 }
 
-TS_entry validaTipo(char operador, TS_entry A, TS_entry B) {
+TS_entry validaTipo(int operador, TS_entry A, TS_entry B) {
 
     if (operador == '+' || operador == '-' || operador == '*') {
       if ( A == Tp_INT && B == Tp_INT) {
