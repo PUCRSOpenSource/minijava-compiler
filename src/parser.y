@@ -115,7 +115,13 @@ Statement : '{' StatementList '}'
           | IDENT '[' Expression ']' '=' Expression ';'
           ;
 Expression : Expression AND Expression
+           {
+                $$ = validaTipo(AND, (TS_entry)$1, (TS_entry)$3);
+           }
            | Expression '<' Expression
+           {
+                $$ = validaTipo('<', (TS_entry)$1, (TS_entry)$3);
+           }
            | Expression '+' Expression
            {
                 $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3);
@@ -133,6 +139,9 @@ Expression : Expression AND Expression
            | Expression '.' IDENT '(' Args ')'
            | '(' Expression ')'
            | INTEGER
+           {
+                $$ = Tp_INT;
+           }
            | IDENT 
            {
                 TS_entry nodo = ts.pesquisa($1);
@@ -143,10 +152,19 @@ Expression : Expression AND Expression
            }
            | THIS
            | TOP
+           {
+                $$ = Tp_BOOL;
+           }
            | BOTTOM
+           {
+                $$ = Tp_BOOL;
+           }
            | NEW INT '[' Expression ']'
            | NEW IDENT '(' ')'
            | '!' Expression
+           {
+                $$ = Tp_BOOL;
+           }
            ;
 Args : Expression ArgList
      |
@@ -244,6 +262,14 @@ TS_entry validaTipo(char operador, TS_entry A, TS_entry B) {
         return Tp_BOOL;
       } else {
         yyerror("(sem) tipos incomp. para operador lógico: "+ A + " && "+B);
+      }
+    }
+
+    if (operador == '<') {
+      if (A == Tp_INT && B == Tp_INT) {
+        return Tp_BOOL;
+      } else {
+        yyerror("(sem) tipos incomp. para operador comparador: " + A + " " + String.valueOf(operador) + " " + B);
       }
     }
 
