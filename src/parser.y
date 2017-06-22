@@ -52,6 +52,16 @@ ClassDeclaration : CLASS IDENT
                  |
                  ;
 Extends : EXTENDS IDENT
+        {
+        TS_entry nodo = ts.pesquisa($2);
+        if(nodo == null) {
+            ts.insert(new TS_entry($2, Tp_OBJECT, null, ClasseID.TipoComplexo, true));
+            ts.resolveType($2);
+            currEscopo = $2;
+        }
+        else
+            yyerror("(sem) -> Classe <" + $2 + "> ja declarada");
+        }
         |
         ;
 VarDeclarationMethodeDeclaration : Var VarDeclarationMethodeDeclaration
@@ -111,10 +121,36 @@ StatementList : StatementList Statement
               ;
 Statement : '{' StatementList '}'
           | IF '(' Expression ')' Statement ELSE Statement
+          {
+                if($3 != Tp_BOOL)
+                    yyerror("(sem) if expressão deve ser lógica ");
+          }
           | WHILE '(' Expression ')' Statement
+          {
+                if($3 != Tp_BOOL)
+                    yyerror("(sem) while expressão deve ser lógica ");
+          }
           | PRINT '(' Expression ')' ';'
+          {
+          /*add tp void*/
+          }
           | IDENT '=' Expression ';'
+          {
+                TS_entry nodo = ts.pesquisa($1);
+                if($1 != null)
+                    validaTipo('=', (TS_entry)$1.getTipoBase(), $3);
+                else
+                    yyerror("(sem) var <" + $1 + "> nao declarada");
+          }
           | IDENT '[' Expression ']' '=' Expression ';'
+          {
+                if($1 != Tp_ARRAY)
+                    yyerror("(sem) "+ $1 + " não é to tipo array.")
+                if($3 != Tp_INT)
+                    yyerror("(sem) "+ $3 + " não é to tipo inteiro.")
+                if($6 != Tp_INT)
+                    yyerror("(sem) "+ $6 + " não é to tipo inteiro.")
+          }
           ;
 Expression : Expression AND Expression
            {
@@ -137,9 +173,24 @@ Expression : Expression AND Expression
                 $$ = validaTipo('*', (TS_entry)$1, (TS_entry)$3);
            }
            | Expression '[' Expression ']'
+           {
+                if($1 != Tp_ARRAY)
+                    yyerror("(sem) nao é array")
+                if($3 != Tp_INT)
+                    yyerror("(sem) acesso array deve ser int");
+           }
            | Expression '.' LENGTH
+           {
+                $$ = validaTipo(LENGTH, (TS_entry)$1, null);
+           }
            | Expression '.' IDENT '(' Args ')'
+           {
+           /*isso aqui é foda pra krl*/
+           }
            | '(' Expression ')'
+           {
+                $$ = $2;
+           }
            | INTEGER
            {
                 $$ = Tp_INT;
@@ -153,6 +204,9 @@ Expression : Expression AND Expression
                     $$ = nodo.getTipo();
            }
            | THIS
+           {
+                $$ = Tp_OBJECT;
+           }
            | TOP
            {
                 $$ = Tp_BOOL;
@@ -162,10 +216,18 @@ Expression : Expression AND Expression
                 $$ = Tp_BOOL;
            }
            | NEW INT '[' Expression ']'
+           {
+                if($4 != Tp_INT)
+                    yyerror("(sem) tamanho do arra tem que ser inteiro");
+                else
+                    $$ = Tp_ARRAY;
+           }
            | NEW IDENT '(' ')'
+           {
+           }
            | '!' Expression
            {
-                $$ = Tp_BOOL;
+                $$ = validaTipo(NOT, (TS_entry)$2, null);
            }
            ;
 Args : Expression ArgList
@@ -268,11 +330,33 @@ TS_entry validaTipo(int operador, TS_entry A, TS_entry B) {
       }
     }
 
+    if (operador == '=') {
+      if (A == B) {
+        return A;
+      } else {
+        yyerror("(sem) tipos incomp. para operador lógico: "+ A + " && "+B);
+      }
+    }
+
     if (operador == '<') {
       if (A == Tp_INT && B == Tp_INT) {
         return Tp_BOOL;
       } else {
         yyerror("(sem) tipos incomp. para operador comparador: " + A + " " + String.valueOf(operador) + " " + B);
+      }
+    }
+    if (operador == NOT) {
+      if (A == Tp_BOOL) {
+        return Tp_BOOL;
+      } else {
+        yyerror("(sem) tipos incomp. para operador comparador: !" + A);
+      }
+    }
+    if (operador == LENGTH) {
+      if (A == Tp_ARRAY) {
+        return Tp_INT;
+      } else {
+        yyerror("(sem) tipos incomp. para operador comparador: !" + A);
       }
     }
 
