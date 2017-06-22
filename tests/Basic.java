@@ -4,12 +4,22 @@ class Basic {
 	}
 }
 class X{
-    int[] number ;
     int size ;
     X x;
     public int Start(int s){
+        int[] number ;
         int y;
-        y = y + size;
+        int w;
+        boolean h;
+        y = y + number.length;
+        System.out.println(x);
+        if (!(h))
+            size = 1 ;
+        else
+            number[0] = y;
+        while(y < 1){
+            w = 4;
+        }
         return 0;
     }
 }

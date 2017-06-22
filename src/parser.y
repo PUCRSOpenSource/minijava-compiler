@@ -33,7 +33,11 @@
 %type <obj> Expression
 
 %%
-Goal : MainClass ClassDeclaration
+Goal :
+     {
+     currEscopo = "";
+     }
+     MainClass ClassDeclaration
      ;
 MainClass : CLASS IDENT '{' PUBLIC STATIC VOID MAIN '(' STRING '[' ']' IDENT ')' '{' VarDeclarationStatementList '}' '}'
           ;
@@ -122,7 +126,7 @@ StatementList : StatementList Statement
 Statement : '{' StatementList '}'
           | IF '(' Expression ')' Statement ELSE Statement
           {
-                if($3 != Tp_BOOL)
+                if((TS_entry)$3 != Tp_BOOL)
                     yyerror("(sem) if expressão deve ser lógica ");
           }
           | WHILE '(' Expression ')' Statement
@@ -132,24 +136,25 @@ Statement : '{' StatementList '}'
           }
           | PRINT '(' Expression ')' ';'
           {
-          /*add tp void*/
           }
           | IDENT '=' Expression ';'
           {
                 TS_entry nodo = ts.pesquisa($1);
-                if($1 != null)
-                    validaTipo('=', (TS_entry)$1.getTipoBase(), $3);
+                if(nodo != null)
+                    validaTipo('=', nodo.getTipo(), (TS_entry)$3);
                 else
                     yyerror("(sem) var <" + $1 + "> nao declarada");
           }
           | IDENT '[' Expression ']' '=' Expression ';'
           {
-                if($1 != Tp_ARRAY)
-                    yyerror("(sem) "+ $1 + " não é to tipo array.")
-                if($3 != Tp_INT)
-                    yyerror("(sem) "+ $3 + " não é to tipo inteiro.")
-                if($6 != Tp_INT)
-                    yyerror("(sem) "+ $6 + " não é to tipo inteiro.")
+                TS_entry nodo = ts.pesquisa($1);
+                if(nodo != null){
+                    validaTipo('[', nodo.getTipoBase(), (TS_entry)$3);
+                    if((TS_entry)$3 != Tp_INT)
+                        yyerror("(sem) "+ $3 + " indice não é to tipo inteiro.");
+                    if((TS_entry)$6 != Tp_INT)
+                        yyerror("(sem) "+ $6 + " não é to tipo inteiro.");
+                }
           }
           ;
 Expression : Expression AND Expression
@@ -174,10 +179,12 @@ Expression : Expression AND Expression
            }
            | Expression '[' Expression ']'
            {
-                if($1 != Tp_ARRAY)
-                    yyerror("(sem) nao é array")
-                if($3 != Tp_INT)
+                if((TS_entry)$1 != Tp_ARRAY)
+                    yyerror("(sem) nao é array");
+                if((TS_entry)$3 != Tp_INT)
                     yyerror("(sem) acesso array deve ser int");
+                else
+                    $$ = Tp_INT;
            }
            | Expression '.' LENGTH
            {
@@ -195,7 +202,7 @@ Expression : Expression AND Expression
            {
                 $$ = Tp_INT;
            }
-           | IDENT 
+           | IDENT
            {
                 TS_entry nodo = ts.pesquisa($1);
                 if(nodo == null)
@@ -227,7 +234,7 @@ Expression : Expression AND Expression
            }
            | '!' Expression
            {
-                $$ = validaTipo(NOT, (TS_entry)$2, null);
+                $$ = validaTipo('!', (TS_entry)$2, null);
            }
            ;
 Args : Expression ArgList
@@ -248,6 +255,9 @@ public static TS_entry Tp_BOOL= new TS_entry("boolean", null, "", ClasseID.TipoB
 public static TS_entry Tp_ARRAY = new TS_entry("array", null, "", ClasseID.TipoBase);
 public static TS_entry Tp_OBJECT = new TS_entry("object", null, "", ClasseID.TipoComplexo);
 public static TS_entry Tp_ERRO = new TS_entry("_erro_", null, "", ClasseID.TipoBase);
+
+public static final int ARRAY = 1500;
+public static final int ATRIB = 1600;
 
 private int yylex () {
     int yyl_return = -1;
@@ -334,7 +344,7 @@ TS_entry validaTipo(int operador, TS_entry A, TS_entry B) {
       if (A == B) {
         return A;
       } else {
-        yyerror("(sem) tipos incomp. para operador lógico: "+ A + " && "+B);
+        yyerror("(sem) tipos incomp. para operador atribuição: "+ A + " = " + B);
       }
     }
 
@@ -342,14 +352,14 @@ TS_entry validaTipo(int operador, TS_entry A, TS_entry B) {
       if (A == Tp_INT && B == Tp_INT) {
         return Tp_BOOL;
       } else {
-        yyerror("(sem) tipos incomp. para operador comparador: " + A + " " + String.valueOf(operador) + " " + B);
+        yyerror("(sem) tipos incomp. para operador comparador: " + A + " < " + String.valueOf(operador) + " " + B);
       }
     }
-    if (operador == NOT) {
+    if (operador == '!') {
       if (A == Tp_BOOL) {
         return Tp_BOOL;
       } else {
-        yyerror("(sem) tipos incomp. para operador comparador: !" + A);
+        yyerror("(sem) tipos incomp. para operador !:" + A);
       }
     }
     if (operador == LENGTH) {
