@@ -101,7 +101,7 @@ MethodeDeclaration : Method MethodeDeclaration
 Method : MethodSig '{' VarDeclarationStatementList RETURN Expression ';' '}'
        ;
 MethodSig : PUBLIC Type IDENT 
-
+{
 TS_entry nodo = ts.pesquisa($3);
                 if(nodo == null) {
                  ts.insert(new TS_entry($3, Tp_OBJECT, currEscopo, ClasseID.TipoComplexo, true));
@@ -110,9 +110,8 @@ TS_entry nodo = ts.pesquisa($3);
                     }
                     else
                         yyerror("(sem) -> Type <" + $3 + "> ja declarada");
-                 }
+					}
               		 '(' Params ')'
-				 {currEscopo = ;}
                  |
                  ;
 	Params : Type IDENT Param
