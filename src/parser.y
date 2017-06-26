@@ -57,14 +57,6 @@ ClassDeclaration : CLASS IDENT
                  ;
 Extends : EXTENDS IDENT
         {
-        TS_entry nodo = ts.pesquisa($2);
-        if(nodo == null) {
-            ts.insert(new TS_entry($2, Tp_OBJECT, null, ClasseID.TipoComplexo, true));
-            ts.resolveType($2);
-            currEscopo = $2;
-        }
-        else
-            yyerror("(sem) -> Classe <" + $2 + "> ja declarada");
         }
         |
         ;
@@ -108,9 +100,22 @@ MethodeDeclaration : Method MethodeDeclaration
                    ;
 Method : MethodSig '{' VarDeclarationStatementList RETURN Expression ';' '}'
        ;
-MethodSig : PUBLIC Type IDENT '(' Params ')'
-          ;
-Params : Type IDENT Param
+MethodSig : PUBLIC Type IDENT 
+
+TS_entry nodo = ts.pesquisa($3);
+                if(nodo == null) {
+                 ts.insert(new TS_entry($3, Tp_OBJECT, currEscopo, ClasseID.TipoComplexo, true));
+                 ts.resolveType($3);
+                 currEscopo = $3;
+                    }
+                    else
+                        yyerror("(sem) -> Type <" + $3 + "> ja declarada");
+                 }
+              		 '(' Params ')'
+				 {currEscopo = ;}
+                 |
+                 ;
+	Params : Type IDENT Param
        |
        ;
 Param : ',' Type IDENT Param
